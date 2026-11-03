@@ -1,0 +1,35 @@
+{
+  "name": "blg-ai",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "exp": "tsx --env-file=.env",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.js,.cjs,.mjs",
+    "lint:fix": "eslint . --ext .ts,.js,.cjs,.mjs --fix",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@google/genai": "^1.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^18.0.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
