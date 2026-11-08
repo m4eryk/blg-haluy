@@ -8,26 +8,43 @@
 src/
   index.ts                 старт и связь слоёв
   bot/
-    telegram.ts            grammY: тег, реплай, «печатает», нарезка по 4096
+    telegram.ts            grammY: бот и явное подключение команд и событий
     incoming.ts            апдейт Telegram → готовый запрос
+    command/
+      index.ts             именные экспорты команд
+      startCommand.ts      /start, стрелочная функция от контекста
+    events/
+      index.ts             именные экспорты событий
+      onMessage.ts         сообщение: заглушка, ответ модели, правка текста
+    helpers/
+      text.ts              фразы чата и обрезка под лимит Telegram
+      typing.ts            статус «печатает…», пока модель отвечает
   agent/
-    client.ts              клиент LLM
+    index.ts               клиент LLM
     prompt.ts              системный промпт
     reply.ts               один generateContent
+assets/
+  start.png                картинка /start; нет файла — в чат уходит только текст
 ```
 
-`npm run bot` запускает `tsx src/index.ts`.
+`npm run bot` запускает `tsx --env-file=.env src/index.ts`.
 
 `src/index.ts` только соединяет слои. Он не разбирает апдейт и не собирает промпт. Из `incoming` приходит запрос. Если после снятия упоминания не осталось ни текста, ни картинки, `reply` не вызывается. Иначе в чат уходит текст ответа.
 
-`bot/` знает Telegram: упоминание, реплай, скачивание фото. `agent/` этих типов не импортирует. Туда приходят текст и картинки.
+`bot/` знает Telegram: упоминание, реплай, скачивание фото, команды. `agent/` этих типов не импортирует. Туда приходят текст и картинки.
 
-На диске ещё лежат `src/client.ts` и `src/experiments/`. Это старая проверка AI Studio. Новые файлы туда не класть: клиент переезжает в `src/agent/client.ts`, каталог `experiments` удаляется.
+Команды лежат в `src/bot/command`. Каждая — стрелочная функция от контекста grammY и именной экспорт. В функцию бот не передаётся. `telegram.ts` подключает их явно: `bot.command('start', startCommand)`. Новый обработчик экспортируется из `command/index.ts` и подключается там же отдельной строкой.
 
-- Импорт из кода: `src/agent/client`, не `../client.js`. Алиас задан в `tsconfig.json` (`paths`, `moduleResolution: bundler`).
+События лежат в `src/bot/events`. Туда же — то, на что бот реагирует помимо команд. `onMessage.ts` отвечает на сообщение. Новый обработчик экспортируется из `events/index.ts` и подключается в `telegram.ts` отдельной строкой, например `bot.on('message', onMessage)`.
+
+Хелперы лежат в `src/bot/helpers`. `text.ts` — фразы чата и обрезка под лимит Telegram. `typing.ts` — статус «печатает…», пока модель отвечает.
+
+`/start` отвечает подписью. Если на диске есть `assets/start.png`, та же подпись уходит под фото.
+
+- Импорт из кода: `src/bot/command`, не `../startCommand.js`. Алиас задан в `tsconfig.json` (`paths`, `moduleResolution: bundler`).
 - Node.js `>=24`. Зависимости ставятся локально, `npm install`.
-- Секреты только в `.env`: `GEMINI_API_KEY`, `GEMINI_MODEL`, `TELEGRAM_BOT_TOKEN`. В git его нет. В примеры и ответы ключ не копировать.
-- `src/agent/client.ts` — один клиент LLM. Сейчас это Gemini (`GoogleGenAI`): ключ `GEMINI_API_KEY`, модель `GEMINI_MODEL` или запас `gemini-flash-latest`.
+- Секреты только в `.env`: `GEMINI_API_KEY`, `GEMINI_MODEL`, `TELEGRAM_BOT_TOKEN`. В git его нет. В примеры и ответы ключ не копировать. Значения читаются из `process.env`. Отдельных проверок «задайте переменную» нет: позже их соберёт фабрика.
+- `src/agent/index.ts` — один клиент LLM. Сейчас это Gemini (`GoogleGenAI`): ключ `GEMINI_API_KEY`, модель `GEMINI_MODEL` или запас `gemini-flash-latest`.
 
 ## Поведение
 
@@ -52,6 +69,8 @@ src/
 ## Стиль кода
 
 - TypeScript, ESM, строго. ESLint: `eslint-config-airbnb` и `eslint-config-airbnb-typescript`.
+- Команды — стрелочные функции с именным экспортом. `import/prefer-default-export` выключен для всего проекта.
+- Многострочный текст пишется шаблонной строкой.
 - `console.log` в коде бота и агента нет.
 - Перед завершением задачи гонять `npm run typecheck` и `npm run lint`.
 - Прекоммит уже проверяет застейдженные файлы. Коммит не создавать, пока об этом не попросили.

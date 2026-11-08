@@ -6,14 +6,15 @@
     "node": ">=24"
   },
   "scripts": {
-    "exp": "tsx --env-file=.env",
+    "bot": "tsx --env-file=.env src/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.js,.cjs,.mjs",
     "lint:fix": "eslint . --ext .ts,.js,.cjs,.mjs --fix",
     "prepare": "husky"
   },
   "dependencies": {
-    "@google/genai": "^1.30.0"
+    "@google/genai": "^1.30.0",
+    "grammy": "^1.46.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

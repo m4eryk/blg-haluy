@@ -31,6 +31,9 @@ module.exports = {
       version: '18.3',
     },
   },
+  rules: {
+    'import/prefer-default-export': 'off',
+  },
   overrides: [
     {
       files: ['src/experiments/**/*.ts'],
